@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.touch.offset.PointOption;
+import models.Expense;
 
 public class MainPage {
 
@@ -25,7 +26,6 @@ public class MainPage {
   }
 
   public MainPage switchToExpenses() {
-
     MobileElement carPager = getDriver().findElement(By.id("expenses_card_pager"));
 
     TouchAction touchAction = new TouchAction(getDriver());
@@ -49,5 +49,14 @@ public class MainPage {
     getDriver().findElement(By.id("btnAddPrivateExpense")).click();
   }
 
-
+  public void waitUntilExpenseAppears(Expense expense) {
+    new WebDriverWait(getDriver(), 120)
+        .until(ExpectedConditions.visibilityOfElementLocated(
+            By.id("btnShowHideBilledExpenses")));
+    switchToExpenses();
+    new WebDriverWait(getDriver(), 10)
+        .until(ExpectedConditions
+            .visibilityOfElementLocated(By.xpath(
+                "//*[contains(@text,'" + expense.getPrice() + "')]")));
+  }
 }

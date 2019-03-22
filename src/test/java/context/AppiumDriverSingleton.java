@@ -5,7 +5,6 @@ import java.net.URL;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 
@@ -32,8 +31,7 @@ public class AppiumDriverSingleton {
     caps.setCapability("unicodeKeyboard", true);
     caps.setCapability("resetKeyboard", true);
     try {
-      driver =
-          new AndroidDriver<MobileElement>(new URL("http://0.0.0.0:4723/wd/hub"), caps);
+      driver = new AndroidDriver<>(new URL("http://0.0.0.0:4723/wd/hub"), caps);
     } catch (MalformedURLException ignored) {
 
     }

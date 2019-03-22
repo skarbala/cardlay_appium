@@ -11,6 +11,7 @@ import io.appium.java_client.TouchAction;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import io.appium.java_client.touch.offset.PointOption;
+import models.Expense;
 
 public class NewExpenseDialog {
 
@@ -21,23 +22,16 @@ public class NewExpenseDialog {
     PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
   }
 
-  public void addNewExpenseData(
-      String comment,
-      String merchant,
-      String place,
-      Currency currency,
-      String price,
-      String category,
-      String client
-  ) {
-    setComment(comment);
-    setMerchant(merchant);
-    setPlace(place);
-    selectCurrency(currency);
-    setPrice(price);
+  public NewExpenseDialog addNewExpenseData(Expense expense) {
+    setComment(expense.getComment());
+    setMerchant(expense.getMerchant());
+    setPlace(expense.getPlace());
+    selectCurrency(expense.getCurrency());
+    setPrice(expense.getPrice());
     selectVat();
-    selectCategory(category);
-    setClient(client);
+    selectCategory(expense.getCategory());
+    setClient(expense.getClient());
+    return this;
   }
 
   private void setComment(String comment) {
