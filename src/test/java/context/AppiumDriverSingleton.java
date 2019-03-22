@@ -1,21 +1,26 @@
-package tests;
+package context;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.junit.Before;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 
-public class AndroidTestBase {
-  AppiumDriver<MobileElement> driver;
+public class AppiumDriverSingleton {
+  private static AndroidDriver<MobileElement> driver;
 
-  @Before
-  public void setUp() throws MalformedURLException {
-    //Set the Desired Capabilities
+
+  public static AndroidDriver<MobileElement> getDriver() {
+    if (driver == null) {
+      initializeDriver();
+    }
+    return driver;
+  }
+
+  private static void initializeDriver() {
     DesiredCapabilities caps = new DesiredCapabilities();
     caps.setCapability("deviceName", "MI");
     caps.setCapability("udid", "9bc5d6aa0704"); //Give Device ID of your mobile phone
@@ -26,10 +31,12 @@ public class AndroidTestBase {
     caps.setCapability("noReset", "true");
     caps.setCapability("unicodeKeyboard", true);
     caps.setCapability("resetKeyboard", true);
+    try {
+      driver =
+          new AndroidDriver<MobileElement>(new URL("http://0.0.0.0:4723/wd/hub"), caps);
+    } catch (MalformedURLException ignored) {
 
-
-    driver =
-        new AndroidDriver<MobileElement>(new URL("http://0.0.0.0:4723/wd/hub"), caps);
+    }
 
   }
 }
