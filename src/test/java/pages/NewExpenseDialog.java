@@ -1,56 +1,111 @@
 package pages;
 
-import org.openqa.selenium.By;
+import static context.AppiumDriverSingleton.getDriver;
 
-import io.appium.java_client.AppiumDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.PageFactory;
+
+import enumerators.Currency;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
+import io.appium.java_client.pagefactory.AndroidFindBy;
+import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import io.appium.java_client.touch.offset.PointOption;
 
 public class NewExpenseDialog {
 
-  private AppiumDriver<MobileElement> driver;
+  @AndroidFindBy(id = "vatCountryDropDown")
+  private MobileElement vatCountryDropDown;
 
-  public NewExpenseDialog(AppiumDriver<MobileElement> driver) {
-    this.driver = driver;
+  public NewExpenseDialog() {
+    PageFactory.initElements(new AppiumFieldDecorator(getDriver()), this);
   }
 
+  public void addNewExpenseData(
+      String comment,
+      String merchant,
+      String place,
+      Currency currency,
+      String price,
+      String category,
+      String client
+  ) {
+    setComment(comment);
+    setMerchant(merchant);
+    setPlace(place);
+    selectCurrency(currency);
+    setPrice(price);
+    selectVat();
+    selectCategory(category);
+    setClient(client);
+  }
 
-  public void addNewExpenseData(String price) {
-    int screenHeight = driver.manage().window().getSize().height;
+  private void setComment(String comment) {
+    scrollUntilVisible(By.id("etComment")).setValue(comment);
+  }
 
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/etComment"))
-        .sendKeys("Expense_Dinner-Mestiansky pivovar");
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/etMerchant"))
-        .sendKeys("Test merchant automation");
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/etPlace"))
-        .sendKeys("Test place automation");
+  private void setMerchant(String merchant) {
+    scrollUntilVisible(By.id("etMerchant")).setValue(merchant);
+  }
 
-    scrollByOffsetY(screenHeight, 30);
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/etItem")).click();
-    driver
-        .findElementByXPath("//android.widget.ListView/android.widget.FrameLayout[1]/android.widget.TextView")
+  private void setPlace(String place) {
+    scrollUntilVisible(By.id("etPlace")).setValue(place);
+  }
+
+  private void setPrice(String price) {
+    scrollUntilVisible(By.id("etAmount")).setValue(price);
+  }
+
+  private void setClient(String client) {
+    scrollUntilVisible(By.id("etClient")).setValue(client);
+  }
+
+  private void selectCurrency(Currency currency) {
+    scrollUntilVisible(By.id("etItem")).click();
+    getDriver()
+        .findElementByXPath("//android.widget.TextView[@text='" + currency.getUiValue() + "']")
         .click();
-
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/etAmount"))
-        .sendKeys(price);
-    scrollByOffsetY(screenHeight, 40);
-
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/vatCountryDropDown")).click();
-    driver.findElement(By.xpath("//android.widget.TextView[@text='United States']")).click();
-    driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'0%, Various tax rates')]")).click();
-    scrollByOffsetY(screenHeight, 40);
-
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/categoryDropDown")).click();
-    driver.findElement(By.xpath("//android.widget.TextView[@text='Food and beverage']")).click();
-    driver.findElement(By.id("com.seb.mobile.stage_intern_test:id/etClient")).sendKeys("TestClient_automation");
   }
 
-  private void scrollByOffsetY(int screenHeight, int offsetY) {
-    new TouchAction(driver)
-        .press(PointOption.point(50, screenHeight / 2))
-        .moveTo(PointOption.point(50, (screenHeight / 2) - offsetY))
+  private void selectCategory(String category) {
+    scrollUntilVisible(By.id("categoryDropDown")).click();
+    getDriver().findElement(By.xpath("//android.widget.TextView[@text='" + category + "']")).click();
+  }
+
+  private void selectVat() {
+    scrollUntilVisible(By.id("vatCountryDropDown")).click();
+    getDriver().findElement(By.xpath("//android.widget.TextView[@text='United States']")).click();
+  }
+
+  private MobileElement scrollUntilVisible(By locator) {
+    int screenHeight = getDriver().manage().window().getSize().height;
+    int numberOfElements = getDriver().findElements(locator).size();
+    while (numberOfElements == 0) {
+      scrollByOffsetY(screenHeight);
+      numberOfElements = getDriver().findElements(locator).size();
+    }
+    int buttonSaveWrapperHeight = getButtonSaveWrapperHeight();
+
+    while (getDriver().findElement(locator).getLocation().y > screenHeight - buttonSaveWrapperHeight) {
+      scrollByOffsetY(screenHeight);
+    }
+
+    return getDriver().findElement(locator);
+  }
+
+  private void scrollByOffsetY(int screenHeight) {
+    new TouchAction(getDriver())
+        .press(PointOption.point(1, screenHeight / 2))
+        .moveTo(PointOption.point(1, (screenHeight / 2) - 20))
         .release()
         .perform();
+  }
+
+  public void clickSaveButton() {
+    getDriver().findElement(By.id("btnSave")).click();
+  }
+
+  private int getButtonSaveWrapperHeight() {
+    return getDriver().findElement(By.id("btnSave")).getRect().getHeight() + 200;
   }
 }
